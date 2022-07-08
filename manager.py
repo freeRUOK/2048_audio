@@ -38,12 +38,14 @@ error_pointer = "error_pointer"
 pointer = "pointer"
 back = "back"
 recover = "recover"
+restart = "restart"
 
 # 主要管理器
 class Manager:
   def __init__(self):
     pygame.init()
     self.__tts = self.__get_tts()
+
     self.__gamePath = os.path.join(os.getcwd(), "game.dat")
     self.__serviceSetting = self.__loadService()
     self.__game = self.load()
@@ -97,15 +99,13 @@ class Manager:
     return sounds
 
 
-  # 获取TTS优先使用ZDSRAPI
+  # 获取tts引擎
   def __get_tts(self):
-    try:
-      return ZDSREngine()
-    except:
-      try:
-        return NVDAControllerEngine()
-      except:
-        return SAPIEngine()
+    engines = Engines()
+    if not engines.isConfigure():
+      engines.configure()
+
+    return engines.getCurrentEngine()
 
 
   # 启动游戏
@@ -124,6 +124,7 @@ class Manager:
           else:
             self.__ctrl_game(event.key)
 
+      pygame.event.pump()
       time.sleep(0.05)
 
 
@@ -137,9 +138,26 @@ class Manager:
       self.__game.recover() # 回退上一个游戏状态
     elif key == K_b:
       self.__game.back() # 设定当前游戏状态可以按CTRL+r回退到这个状态， 只能设定一次
+    elif key == K_c:
+      wxApp = wx.App()
+      if wx.MessageBox("您确实要放弃本轮游戏， 重新开始么？\n数据不可恢复！", caption="询问：", style=wx.YES_NO | wx.ICON_QUESTION) == wx.YES:
+        if os.path.exists(self.__gamePath):
+          os.remove(self.__gamePath)
+
+        self.__game = self.load()
+        self.start()
+        self.__tts.speak("新一轮游戏已经开始。", False)
+      else:
+        self.__tts.speak("游戏继续。", False)
+
+      wxApp.Destroy()
     elif key == K_o:
       # 打开玩家排行榜列表， 需要配置一个服务器
       self.__showPlayTop()
+    elif key == K_t:
+      engines = Engines()
+      engines.configure()
+      self.__tts = Engines().getCurrentEngine()
 
 
   # 游戏控制器
@@ -167,13 +185,7 @@ class Manager:
     elif gameStatus == STATUS_GAME_OK:
       self.__sounds[ok].play()
     elif gameStatus == STATUS_GAME_OVER:
-      self.__sounds[over].play()
-      self.__tts.speak("游戏失败了， 最后{}, 不要放弃， 欢迎继续。".format(self.__game.description()), False)
-      time.sleep(1.8)
-      if os.path.exists(self.__gamePath):
-        os.remove(self.__gamePath)
-
-      sys.exit()
+      self.__on_game_over()
     elif gameStatus == STATUS_GAME_STOP:
       self.__sounds[quit].play()
       self.__tts.speak("{}, 欢迎下次继续。".format(self.__game.description()), False)
@@ -184,6 +196,27 @@ class Manager:
       self.__sounds[back].play()
     elif gameStatus == STATUS_GAME_RECOVER:
       self.__sounds[recover].play()
+
+
+  def __on_game_over(self):
+    self.__sounds[over].play()
+    time.sleep(1.8)
+    if self.__game.isBack():
+      self.__tts.speak("游戏失败， 即将回退！", False)
+      self.__game.recover()
+
+    else:
+      self.__tts.speak("游戏失败， 即将重新开始， 本局游戏{}".format(self.__game.description()), False)
+      if os.path.exists(self.__gamePath):
+        os.remove(self.__gamePath)
+
+      self.__game = self.load()
+      self.__game.start()
+
+    time.sleep(0.5)
+    for i in range(10):
+      self.__sounds[restart].play()
+      time.sleep(0.3)
 
 
   # 打开玩家排行榜列表
@@ -198,7 +231,7 @@ class Manager:
   def __loadService(self):
     try:
       fp = open(SETTING_PATH)
-      serviceSetting = json.load(fp)["setting"]
+      serviceSetting = json.load(fp)["setting"]["service"]
       fp.close()
     except:
       serviceSetting = None

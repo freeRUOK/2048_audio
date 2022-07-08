@@ -89,6 +89,10 @@ class Game:
     self.__republicEvent(STATUS_GAME_BACK)
 
 
+  def isBack(self):
+    return len(self.__dataBack) != 0
+
+
   def recover(self):
     if len(self.__dataBack) != 0:
       self.__map = [i for i in self.__dataBack["map"]]

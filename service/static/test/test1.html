@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>2048 Test Data Manager</title>
+</head>
+<body>
+<div>
+
+<input type="text" id="name" name="name" />
+<input type="text" id="score" name="score" />
+<input type="text" id="time" name="time" />
+<button onclick="test()">test</button>
+
+</form>
+</div>
+<a href="/do-all">top</a>
+<script src="https://cdn.staticfile.org/axios/0.27.2/axios.js"></script>
+<script>
+function test() {
+  axios.get("/do-init")
+  .then((res) => {
+    for (let d in res.data) {
+      alert(`${d}: ${res.data[d]}`)
+    }
+    data = {
+"hash": res.data.hash, 
+      "name": document.getElementById("name").value, 
+      "score": document.getElementById("score").value, 
+      "time": document.getElementById("time").value
+    }
+
+    axios.post("/do-update", data, {headers: {"content-type": "application/json; charset=utf-8"}})
+      .then((res) => {
+        for (let d in res.data) {
+            alert(`${d}: ${res.data[d]}`)
+        }
+      })
+      .catch((err) => document.write(err.response.data))
+    })
+  .catch((err) => document.write(err.response.data))
+}
+</script>
+</body>
+</html>
