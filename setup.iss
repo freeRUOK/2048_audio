@@ -2,7 +2,7 @@
 ; 有关创建 Inno Setup 脚本文件的详细资料请查阅帮助文档！
 
 #define MyAppName "2048音频版"
-#define MyAppVersion "1.8"
+#define MyAppVersion "1.8.6"
 #define MyAppPublisher "2651688427@qq.com"
 #define MyAppURL "https://www.example.com/"
 #define MyAppExeName "2048_audio.exe"
@@ -25,7 +25,7 @@ LicenseFile=D:\Src\python\Game\2048\v1.8\dist\license.txt
 ; 以下行取消注释，以在非管理安装模式下运行（仅为当前用户安装）。
 ;PrivilegesRequired=lowest
 OutputDir=d:\src\python\game\2048\v1.8\
-OutputBaseFilename=2048_audio-1.8_setup
+OutputBaseFilename=2048_audio-1.8.6_setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern

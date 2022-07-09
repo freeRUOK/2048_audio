@@ -1,8 +1,1 @@
-{"setting": {
-"service": {
-  "host": "124.220.29.153", 
-  "port": 8890}
-}, 
-"tts_config": {
-"engines": {}
-}}
+{"setting": {"service": {"host": "124.220.29.153", "port": 8890}}, "tts_config": {"engines": {"SAPIEngine": {"voice": "Microsoft Huihui Desktop - Chinese (Simplified)", "speed": 100, "volume": 100}, "AISoundEngine": {"voice": "\u5c0f\u71d5", "speed": 100, "volume": 100}}, "currentEngine": "ZDSREngine"}}

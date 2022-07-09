@@ -17,6 +17,8 @@ STATUS_GAME_OK = 3
 STATUS_GAME_STOP = 4
 STATUS_GAME_BACK = 5
 STATUS_GAME_RECOVER = 6
+STATUS_GAME_IMMOVABLE = 7
+STATUS_GAME_MOVE = 8
 
 # 四个方向
 DIRECTION_UP = locals.K_UP
@@ -170,25 +172,33 @@ class Game:
       stop = -1
       step = -5
 
+    isMove = False
     for i in range(start, stop, step):
       indexs = self.pointers(i, direction)
       i = 0
       while i + 1 < len(indexs):
         result = self.mergeOne(indexs[i], indexs[i + 1])
+        if (not isMove) and (result == -1):
+          isMove = True
+
         if i + result > -1:
           i += result
 
-    self.__randomNumber()
-    self.__randomNumber()
+    if isMove:
+      self.__randomNumber()
+      self.__republicEvent(STATUS_GAME_MOVE)
 
-    status = STATUS_GAME_RUN
-    if self.__isGameOk():
-      status = STATUS_GAME_OK
+      status = STATUS_GAME_RUN
+      if self.__isGameOk():
+        status = STATUS_GAME_OK
 
-    self.__republicEvent(status)
+      self.__republicEvent(status)
 
-    if self.__isGameOver():
-      self.stop(STATUS_GAME_OVER)
+      if self.__isGameOver():
+        self.stop(STATUS_GAME_OVER)
+
+    else:
+      self.__republicEvent(STATUS_GAME_IMMOVABLE)
 
 
   # 获取某个方向的所有索引

@@ -39,6 +39,7 @@ pointer = "pointer"
 back = "back"
 recover = "recover"
 restart = "restart"
+immovable = "immovable"
 
 # 主要管理器
 class Manager:
@@ -171,7 +172,6 @@ class Manager:
         self.__tts.speak(str(currentPointer), True)
       elif index >= 16 and index <= 19:
         # 移动游戏上的数字， 
-        self.__sounds[move].play()
         self.__game.merge(self.__inputs[index])
       else:
         pass
@@ -182,6 +182,8 @@ class Manager:
   def __gameEventHandler(self, gameStatus):
     if gameStatus == STATUS_GAME_MERGE:
       self.__sounds[merge].play()
+    elif gameStatus == STATUS_GAME_MOVE:
+      self.__sounds[move].play()
     elif gameStatus == STATUS_GAME_OK:
       self.__sounds[ok].play()
     elif gameStatus == STATUS_GAME_OVER:
@@ -196,8 +198,11 @@ class Manager:
       self.__sounds[back].play()
     elif gameStatus == STATUS_GAME_RECOVER:
       self.__sounds[recover].play()
+    elif gameStatus == STATUS_GAME_IMMOVABLE:
+      self.__sounds[immovable].play()
 
 
+  # GAME_OVER事件处理程序
   def __on_game_over(self):
     self.__sounds[over].play()
     time.sleep(1.8)
